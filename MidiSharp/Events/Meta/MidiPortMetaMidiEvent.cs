@@ -18,10 +18,11 @@ namespace MidiSharp.Events.Meta
         private byte m_port;
 
         /// <summary>Intializes the MIDI port event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="port">The port for the event.</param>
-        public MidiPortMetaMidiEvent(long deltaTime, byte port)
-            : base(deltaTime, MetaId)
+        public MidiPortMetaMidiEvent(MidiTrack owner, long deltaTime, byte port)
+            : base(owner, deltaTime, MetaId)
         {
             Port = port;
         }
@@ -53,7 +54,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new MidiPortMetaMidiEvent(DeltaTime, Port);
+            return new MidiPortMetaMidiEvent(Owner, DeltaTime, Port);
         }
     }
 }

@@ -20,22 +20,24 @@ namespace MidiSharp.Events.Meta
         private Tonality m_tonality;
 
         /// <summary>Intializes the meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="key">Key of the signature.</param>
         /// <param name="tonality">Tonality of the signature.</param>
-        public KeySignatureMetaMidiEvent(long deltaTime, Key key, Tonality tonality) :
-            base(deltaTime, MetaId)
+        public KeySignatureMetaMidiEvent(MidiTrack owner, long deltaTime, Key key, Tonality tonality) :
+            base(owner, deltaTime, MetaId)
         {
             Key = key;
             Tonality = tonality;
         }
 
         /// <summary>Intializes the key signature meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="key">Key of the signature.</param>
         /// <param name="tonality">Tonality of the signature.</param>
-        public KeySignatureMetaMidiEvent(long deltaTime, byte key, byte tonality) :
-            this(deltaTime, (Key)key, (Tonality)tonality)
+        public KeySignatureMetaMidiEvent(MidiTrack owner, long deltaTime, byte key, byte tonality) :
+            this(owner, deltaTime, (Key)key, (Tonality)tonality)
         {
         }
 
@@ -82,7 +84,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new KeySignatureMetaMidiEvent(DeltaTime, this.Key, this.Tonality);
+            return new KeySignatureMetaMidiEvent(Owner, DeltaTime, this.Key, this.Tonality);
         }
     }
 }

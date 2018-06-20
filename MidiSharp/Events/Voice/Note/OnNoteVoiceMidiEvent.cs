@@ -18,32 +18,35 @@ namespace MidiSharp.Events.Voice.Note
         private byte m_velocity;
 
         /// <summary>Initialize the NoteOn MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The name of the MIDI note to sound ("C0" to "G10").</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
-        public OnNoteVoiceMidiEvent(long deltaTime, byte channel, string note, byte velocity) :
-            this(deltaTime, channel, GetNoteValue(note), velocity)
+        public OnNoteVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, string note, byte velocity) :
+            this(owner, deltaTime, channel, GetNoteValue(note), velocity)
         {
         }
 
         /// <summary>Initialize the NoteOn MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="percussion">The percussion instrument to sound.</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
         /// <remarks>Channel 10 (internally 0x9) is assumed.</remarks>
-        public OnNoteVoiceMidiEvent(long deltaTime, GeneralMidiPercussion percussion, byte velocity) :
-            this(deltaTime, (byte)SpecialChannel.Percussion, GetNoteValue(percussion), velocity)
+        public OnNoteVoiceMidiEvent(MidiTrack owner, long deltaTime, GeneralMidiPercussion percussion, byte velocity) :
+            this(owner, deltaTime, (byte)SpecialChannel.Percussion, GetNoteValue(percussion), velocity)
         {
         }
 
         /// <summary>Initialize the NoteOn MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The MIDI note to sound (0x0 to 0x7F).</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
-        public OnNoteVoiceMidiEvent(long deltaTime, byte channel, byte note, byte velocity) :
-            base(deltaTime, CategoryId, channel, note)
+        public OnNoteVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, byte note, byte velocity) :
+            base(owner, deltaTime, CategoryId, channel, note)
         {
             Velocity = velocity;
         }
@@ -52,7 +55,7 @@ namespace MidiSharp.Events.Voice.Note
         /// <returns>A string representation of the event.</returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0}\t0x{1:X2}", base.ToString(), m_velocity); 
+            return string.Format(CultureInfo.InvariantCulture, "{0}\t0x{1:X2}", base.ToString(), m_velocity);
         }
 
         /// <summary>Write the event to the output stream.</summary>
@@ -78,7 +81,26 @@ namespace MidiSharp.Events.Voice.Note
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new OnNoteVoiceMidiEvent(DeltaTime, Channel, Note, Velocity);
+            return new OnNoteVoiceMidiEvent(Owner, DeltaTime, Channel, Note, Velocity);
+        }
+
+        /// <summary>The amount of ticks this note lasts for.</summary>
+        /// <remarks>-1 indicates a note that never ends.</remarks>
+        public long Duration
+        {
+            get
+            {
+                for (int i = Owner.Events.IndexOf(this) + 1; i < Owner.Events.Count; i++)
+                {
+                    if (!(Owner.Events[i] is NoteVoiceMidiEvent nve))
+                        continue;
+                    if (nve.Note != Note)
+                        continue;
+                    if (nve is OnNoteVoiceMidiEvent onve && onve.Velocity == 0 || nve is OffNoteVoiceMidiEvent ofve)
+                        return nve.AbsoluteTime - AbsoluteTime;
+                }
+                return -1;
+            }
         }
     }
 }

@@ -18,10 +18,11 @@ namespace MidiSharp.Events.Meta
         private byte[] m_data;
 
         /// <summary>Intializes the proprietary meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="data">The data associated with the event.</param>
-        public ProprietaryMetaMidiEvent(long deltaTime, byte[] data) :
-            base(deltaTime, MetaId)
+        public ProprietaryMetaMidiEvent(MidiTrack owner, long deltaTime, byte[] data) :
+            base(owner, deltaTime, MetaId)
         {
             Data = data;
         }
@@ -52,7 +53,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new ProprietaryMetaMidiEvent(DeltaTime, DeepClone(Data));
+            return new ProprietaryMetaMidiEvent(Owner, DeltaTime, DeepClone(Data));
         }
     }
 }

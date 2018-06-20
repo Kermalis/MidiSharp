@@ -15,26 +15,31 @@ namespace GenerateMidiCode
     {
         static void Main(string[] args)
         {
-            if (args.Length != 1) {
+            if (args.Length != 1)
+            {
                 Console.WriteLine("Usage: GenerateMidiCode.exe filename.mid");
                 Console.WriteLine("    filename.mid = MIDI file for which to generate code");
                 Console.WriteLine();
                 return;
             }
 
-            if (!File.Exists(args[0])) {
+            if (!File.Exists(args[0]))
+            {
                 Console.WriteLine("Error: file {0} not found", args[0]);
                 return;
             }
 
-            try {
+            try
+            {
                 MidiSequence sequence;
-                using (Stream inputStream = File.OpenRead(args[0])) {
+                using (Stream inputStream = File.OpenRead(args[0]))
+                {
                     sequence = MidiSequence.Open(inputStream);
                 }
                 CSharpCodeGenerator.Write(sequence, "GeneratedCode", "Example", Console.Out);
             }
-            catch (Exception exc) {
+            catch (Exception exc)
+            {
                 Console.Error.WriteLine("Error: {0}", exc.Message);
             }
         }

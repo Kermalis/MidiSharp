@@ -17,12 +17,13 @@ namespace MidiSharp.Events.Voice.Note
         private byte m_note;
 
         /// <summary>Intializes the note voice MIDI event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="category">The category identifier (0x0 through 0xF) for this voice event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The MIDI note to modify (0x0 to 0x7F).</param>
-        internal NoteVoiceMidiEvent(long deltaTime, byte category, byte channel, byte note) :
-            base(deltaTime, category, channel)
+        internal NoteVoiceMidiEvent(MidiTrack owner, long deltaTime, byte category, byte channel, byte note) :
+            base(owner, deltaTime, category, channel)
         {
             Note = note;
         }
@@ -57,41 +58,44 @@ namespace MidiSharp.Events.Voice.Note
         internal sealed override byte Parameter1 { get { return m_note; } }
 
         /// <summary>Create a complete note (both on and off messages).</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The name of the MIDI note to sound ("C0" to "G10").</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
         /// <param name="duration">The duration of the note.</param>
         public static MidiEvent[] Complete(
-            long deltaTime, byte channel, string note, byte velocity, long duration)
+            MidiTrack owner, long deltaTime, byte channel, string note, byte velocity, long duration)
         {
-            return Complete(deltaTime, channel, GetNoteValue(note), velocity, duration);
+            return Complete(owner, deltaTime, channel, GetNoteValue(note), velocity, duration);
         }
 
         /// <summary>Create a complete note (both on and off messages).</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="percussion">The percussion instrument to sound.</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
         /// <param name="duration">The duration of the note.</param>
         /// <remarks>Channel 10 (internally 0x9) is assumed.</remarks>
         public static MidiEvent[] Complete(
-            long deltaTime, GeneralMidiPercussion percussion, byte velocity, long duration)
+            MidiTrack owner, long deltaTime, GeneralMidiPercussion percussion, byte velocity, long duration)
         {
-            return Complete(deltaTime, (byte)SpecialChannel.Percussion, GetNoteValue(percussion), velocity, duration);
+            return Complete(owner, deltaTime, (byte)SpecialChannel.Percussion, GetNoteValue(percussion), velocity, duration);
         }
 
         /// <summary>Create a complete note (both on and off messages) with a specified duration.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The MIDI note to sound (0x0 to 0x7F).</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
         /// <param name="duration">The duration of the note.</param>
         public static MidiEvent[] Complete(
-            long deltaTime, byte channel, byte note, byte velocity, long duration)
+            MidiTrack owner, long deltaTime, byte channel, byte note, byte velocity, long duration)
         {
             return new MidiEvent[2] {
-                new OnNoteVoiceMidiEvent(deltaTime, channel, note, velocity),
-                new OffNoteVoiceMidiEvent(duration, channel, note, velocity)
+                new OnNoteVoiceMidiEvent(owner, deltaTime, channel, note, velocity),
+                new OffNoteVoiceMidiEvent(owner, duration, channel, note, velocity)
             };
         }
     }

@@ -18,11 +18,12 @@ namespace MidiSharp.Events.Voice
         private byte m_pressure;
 
         /// <summary>Initialize the Controller MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="pressure">The pressure to be applied.</param>
-        public ChannelPressureVoiceMidiEvent(long deltaTime, byte channel, byte pressure) :
-            base(deltaTime, CategoryId, channel)
+        public ChannelPressureVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, byte pressure) :
+            base(owner, deltaTime, CategoryId, channel)
         {
             Validate.SetIfInRange("pressure", ref m_pressure, pressure, 0, 127); 
         }
@@ -58,7 +59,7 @@ namespace MidiSharp.Events.Voice
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new ChannelPressureVoiceMidiEvent(DeltaTime, Channel, Pressure);
+            return new ChannelPressureVoiceMidiEvent(Owner, DeltaTime, Channel, Pressure);
         }
     }
 }

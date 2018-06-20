@@ -24,22 +24,24 @@ namespace MidiSharp.Events.Voice
         private byte m_value;
 
         /// <summary>Initialize the Controller MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="number">The type of controller message to be written.</param>
         /// <param name="value">The value of the controller message.</param>
-        public ControllerVoiceMidiEvent(long deltaTime, byte channel, Controller number, byte value) :
-            this(deltaTime, channel, (byte)number, value)
+        public ControllerVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, Controller number, byte value) :
+            this(owner, deltaTime, channel, (byte)number, value)
         {
         }
 
         /// <summary>Initialize the Controller MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="number">The type of controller message to be written.</param>
         /// <param name="value">The value of the controller message.</param>
-        public ControllerVoiceMidiEvent(long deltaTime, byte channel, byte number, byte value) :
-            base(deltaTime, CategoryId, channel)
+        public ControllerVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, byte number, byte value) :
+            base(owner, deltaTime, CategoryId, channel)
         {
             m_number = number;
             Validate.SetIfInRange("value", ref m_value, value, 0, 127);
@@ -87,7 +89,7 @@ namespace MidiSharp.Events.Voice
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new ControllerVoiceMidiEvent(DeltaTime, Channel, Number, Value);
+            return new ControllerVoiceMidiEvent(Owner, DeltaTime, Channel, Number, Value);
         }
     }
 }

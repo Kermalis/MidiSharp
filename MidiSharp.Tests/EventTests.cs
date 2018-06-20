@@ -16,15 +16,15 @@ namespace MidiSharp.Tests
         [TestMethod]
         public void TestBaseTextMetaMidiEvents()
         {
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new CopyrightTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new CuePointTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new DeviceNameTextMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new InstrumentTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new LyricTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new MarkerTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new ProgramNameTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new SequenceTrackNameTextMetaMidiEvent(deltaTime, text));
-            TestBaseTextMetaMidiEvent((deltaTime, text) => new TextMetaMidiEvent(deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new CopyrightTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new CuePointTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new DeviceNameTextMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new InstrumentTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new LyricTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new MarkerTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new ProgramNameTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new SequenceTrackNameTextMetaMidiEvent(null, deltaTime, text));
+            TestBaseTextMetaMidiEvent((deltaTime, text) => new TextMetaMidiEvent(null, deltaTime, text));
         }
 
         private void TestBaseTextMetaMidiEvent(Func<long, string, BaseTextMetaMidiEvent> factory)
@@ -32,14 +32,17 @@ namespace MidiSharp.Tests
             Utils.AssertThrows<ArgumentOutOfRangeException>(() => factory(-1, ""));
             Utils.AssertThrows<ArgumentNullException>(() => factory(0, null));
 
-            foreach (long deltaTime in new long[] { 0, 1, 10, 100, long.MaxValue }) {
-                foreach (string text in new string[] { "", "a", " ", "abcd", "ab\r\ncd" }) {
+            foreach (long deltaTime in new long[] { 0, 1, 10, 100, long.MaxValue })
+            {
+                foreach (string text in new string[] { "", "a", " ", "abcd", "ab\r\ncd" })
+                {
                     BaseTextMetaMidiEvent ev = factory(deltaTime, text);
                     Assert.AreEqual(ev.DeltaTime, deltaTime);
                     Assert.AreEqual(ev.Text, text);
 
                     BaseTextMetaMidiEvent clone = (BaseTextMetaMidiEvent)ev.DeepClone();
                     Assert.AreEqual(ev.GetType(), clone.GetType());
+                    Assert.AreEqual(ev.Owner, clone.Owner);
                     Assert.AreEqual(ev.DeltaTime, clone.DeltaTime);
                     Assert.AreEqual(ev.Text, clone.Text);
                     Assert.AreEqual(ev.MetaEventID, clone.MetaEventID);

@@ -17,11 +17,12 @@ namespace MidiSharp.Events.Meta.Text
         private string m_text;
 
         /// <summary>Intializes the meta MIDI event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="metaEventID">The ID of the meta event.</param>
         /// <param name="text">The text associated with the event.</param>
-        internal BaseTextMetaMidiEvent(long deltaTime, byte metaEventID, string text) :
-            base(deltaTime, metaEventID)
+        internal BaseTextMetaMidiEvent(MidiTrack owner, long deltaTime, byte metaEventID, string text) :
+            base(owner, deltaTime, metaEventID)
         {
             Text = text;
         }

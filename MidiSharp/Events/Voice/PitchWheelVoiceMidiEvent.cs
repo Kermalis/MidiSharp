@@ -20,32 +20,35 @@ namespace MidiSharp.Events.Voice
         private byte m_lowerBits;
 
         /// <summary>Initialize the Controller MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="steps">The amount of pitch change to apply.</param>
-        public PitchWheelVoiceMidiEvent(long deltaTime, byte channel, PitchWheelStep steps) :
-            this(deltaTime, channel, (int)steps)
+        public PitchWheelVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, PitchWheelStep steps) :
+            this(owner, deltaTime, channel, (int)steps)
         {
         }
 
         /// <summary>Initialize the Controller MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="upperBits">The upper 7 bits of the position.</param>
         /// <param name="lowerBits">The lower 7 bits of the position.</param>
-        public PitchWheelVoiceMidiEvent(long deltaTime, byte channel, byte upperBits, byte lowerBits) :
-            base(deltaTime, CategoryId, channel)
+        public PitchWheelVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, byte upperBits, byte lowerBits) :
+            base(owner, deltaTime, CategoryId, channel)
         {
             UpperBits = upperBits;
             LowerBits = lowerBits;
         }
 
         /// <summary>Initialize the Controller MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="position">The position of the wheel.</param>
-        public PitchWheelVoiceMidiEvent(long deltaTime, byte channel, int position) :
-            base(deltaTime, CategoryId, channel)
+        public PitchWheelVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, int position) :
+            base(owner, deltaTime, CategoryId, channel)
         {
             // Store the data (validation is implicit)
             Position = position;
@@ -101,7 +104,7 @@ namespace MidiSharp.Events.Voice
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new PitchWheelVoiceMidiEvent(DeltaTime, Channel, Position);
+            return new PitchWheelVoiceMidiEvent(Owner, DeltaTime, Channel, Position);
         }
     }
 }

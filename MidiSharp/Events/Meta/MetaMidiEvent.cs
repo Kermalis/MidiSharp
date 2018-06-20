@@ -17,10 +17,11 @@ namespace MidiSharp.Events.Meta
         private byte m_metaEventID;
 
         /// <summary>Intializes the meta MIDI event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="metaEventID">The ID of the meta event.</param>
-        internal MetaMidiEvent(long deltaTime, byte metaEventID)
-            : base(deltaTime)
+        internal MetaMidiEvent(MidiTrack owner, long deltaTime, byte metaEventID)
+            : base(owner, deltaTime)
         {
             m_metaEventID = metaEventID;
         }

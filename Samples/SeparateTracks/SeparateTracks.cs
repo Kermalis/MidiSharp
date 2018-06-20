@@ -14,33 +14,40 @@ namespace SeparateTracks
     {
         static void Main(string[] args)
         {
-            if (args.Length != 1) {
+            if (args.Length != 1)
+            {
                 Console.WriteLine("Usage: SeparateTracks.exe filename.mid");
                 Console.WriteLine("    filename.mid = MIDI file for which to generate code");
                 Console.WriteLine();
                 return;
             }
 
-            if (!File.Exists(args[0])) {
+            if (!File.Exists(args[0]))
+            {
                 Console.WriteLine("Error: file {0} not found", args[0]);
                 return;
             }
 
-            try {
+            try
+            {
                 MidiSequence sequence;
-                using (Stream inputStream = File.OpenRead(args[0])) {
+                using (Stream inputStream = File.OpenRead(args[0]))
+                {
                     sequence = MidiSequence.Open(inputStream);
                 }
 
-                for (int i = 0; i < sequence.Tracks.Count; i++) {
+                for (int i = 0; i < sequence.Tracks.Count; i++)
+                {
                     MidiSequence newSequence = new MidiSequence(Format.Zero, sequence.Division);
                     newSequence.Tracks.Add(sequence.Tracks[i]);
-                    using (Stream outputStream = File.OpenWrite(args[0] + "." + i + ".mid")) {
+                    using (Stream outputStream = File.OpenWrite(args[0] + "." + i + ".mid"))
+                    {
                         newSequence.Save(outputStream);
                     }
                 }
             }
-            catch (Exception exc) {
+            catch (Exception exc)
+            {
                 Console.Error.WriteLine("Error: {0}", exc.Message);
             }
         }

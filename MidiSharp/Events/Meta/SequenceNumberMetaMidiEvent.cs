@@ -18,10 +18,11 @@ namespace MidiSharp.Events.Meta
         private int m_number;
 
         /// <summary>Intializes the sequence number meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="number">The sequence number for the event.</param>
-        public SequenceNumberMetaMidiEvent(long deltaTime, int number)
-            : base(deltaTime, MetaId)
+        public SequenceNumberMetaMidiEvent(MidiTrack owner, long deltaTime, int number)
+            : base(owner, deltaTime, MetaId)
         {
             Number = number;
         }
@@ -54,7 +55,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new SequenceNumberMetaMidiEvent(DeltaTime, Number);
+            return new SequenceNumberMetaMidiEvent(Owner, DeltaTime, Number);
         }
     }
 }

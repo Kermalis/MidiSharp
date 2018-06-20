@@ -16,15 +16,16 @@ namespace MidiSharp.Events.Meta
         internal const byte MetaId = 0x54;
 
         /// <summary>Intializes the SMTPE offset meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="hours">Hours for the event.</param>
         /// <param name="minutes">Minutes for the event.</param>
         /// <param name="seconds">Seconds for the event.</param>
         /// <param name="frames">Frames for the event.</param>
         /// <param name="fractionalFrames">Fractional frames for the event.</param>
-        public SMPTEOffsetMetaMidiEvent(long deltaTime,
+        public SMPTEOffsetMetaMidiEvent(MidiTrack owner, long deltaTime,
             byte hours, byte minutes, byte seconds, byte frames, byte fractionalFrames) :
-            base(deltaTime, MetaId)
+            base(owner, deltaTime, MetaId)
         {
             Hours = hours;
             Minutes = minutes;
@@ -74,7 +75,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new SMPTEOffsetMetaMidiEvent(DeltaTime, Hours, Minutes, Seconds, Frames, FractionalFrames);
+            return new SMPTEOffsetMetaMidiEvent(Owner, DeltaTime, Hours, Minutes, Seconds, Frames, FractionalFrames);
         }
     }
 }

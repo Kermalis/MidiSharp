@@ -22,7 +22,8 @@ namespace MidiSharp
         public void AddRange(IEnumerable<MidiEvent> events)
         {
             Validate.NonNull("events", events);
-            foreach (MidiEvent ev in events) {
+            foreach (MidiEvent ev in events)
+            {
                 Add(ev);
             }
         }
@@ -38,7 +39,8 @@ namespace MidiSharp
         internal void ConvertDeltasToTotals()
         {
             long total = this[0].DeltaTime;
-            for (int i = 1; i < Count; i++) {
+            for (int i = 1; i < Count; i++)
+            {
                 total += this[i].DeltaTime;
                 this[i].DeltaTime = total;
             }
@@ -48,7 +50,8 @@ namespace MidiSharp
         internal void ConvertTotalsToDeltas()
         {
             long lastValue = 0;
-            for (int i = 0; i < Count; i++) {
+            for (int i = 0; i < Count; i++)
+            {
                 long tempTime = this[i].DeltaTime;
                 this[i].DeltaTime -= lastValue;
                 lastValue = tempTime;

@@ -13,8 +13,9 @@ namespace MidiSharp.Events.Meta.Text
         internal const byte MetaId = 0x7;
 
         /// <summary>Initialize the cue point meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="text">The text associated with the event.</param>
-        public CuePointTextMetaMidiEvent(long deltaTime, string text) : base(deltaTime, MetaId, text) { }
+        public CuePointTextMetaMidiEvent(MidiTrack owner, long deltaTime, string text) : base(owner, deltaTime, MetaId, text) { }
     }
 }

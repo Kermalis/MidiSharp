@@ -38,7 +38,8 @@ namespace MidiSharp
         public void AddRange(IEnumerable<MidiTrack> tracks)
         {
             Validate.NonNull("tracks", tracks);
-            foreach (MidiTrack track in tracks) {
+            foreach (MidiTrack track in tracks)
+            {
                 Add(track);
             }
         }
@@ -50,12 +51,14 @@ namespace MidiSharp
         {
             // Make sure the track is valid and that is hasn't already been added.
             Validate.NonNull("item", item);
-            if (Contains(item)) {
+            if (Contains(item))
+            {
                 throw new ArgumentException("This track is already part of the sequence.");
             }
 
             // If this is format 0, we can only have 1 track
-            if (m_owningSequence.Format == Format.Zero && Count >= 1) {
+            if (m_owningSequence.Format == Format.Zero && Count >= 1)
+            {
                 throw new InvalidOperationException("Format 0 MIDI files can only have 1 track.");
             }
 

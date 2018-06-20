@@ -65,30 +65,38 @@ namespace MidiSharp.CodeGeneration
                 Ln("using System.Collections.Generic;");
                 Ln();
                 Ln("namespace ", namespaceName);
-                using (Braces()) {
+                using (Braces())
+                {
                     Ln("/// <summary>Provides a method for creating the ", (trackName != null ? TextString(trackName) : typeName), " MIDI sequence.</summary>");
                     Ln("public class ", typeName);
-                    using (Braces()) {
+                    using (Braces())
+                    {
                         Ln("/// <summary>Creates the MIDI sequence.</summary>");
                         Ln("public static MidiSequence CreateSequence()");
-                        using (Braces()) {
+                        using (Braces())
+                        {
                             Ln("MidiSequence sequence = new MidiSequence(MidiSharp.Format.", sequence.Format, ", ", sequence.Division, ");");
-                            for (int i = 0; i < sequence.Tracks.Count; i++) {
+                            for (int i = 0; i < sequence.Tracks.Count; i++)
+                            {
                                 Ln("sequence.Tracks.Add(CreateTrack", i, "());");
                             }
                             Ln("return sequence;");
                         }
                         Ln();
-                        for (int i = 0; i < sequence.Tracks.Count; i++) {
-                            if (i != 0) {
+                        for (int i = 0; i < sequence.Tracks.Count; i++)
+                        {
+                            if (i != 0)
+                            {
                                 Ln();
                             }
                             Ln("/// <summary>Creates track #", i, " in the MIDI sequence.</summary>");
                             Ln("private static MidiTrack CreateTrack", i, "()");
-                            using (Braces()) {
+                            using (Braces())
+                            {
                                 Ln("MidiTrack track = new MidiTrack();");
                                 Ln("MidiEventCollection ", EventsListName, " = track.Events;");
-                                foreach (MidiEvent ev in sequence.Tracks[i].Events) {
+                                foreach (MidiEvent ev in sequence.Tracks[i].Events)
+                                {
                                     GenerateAddEvent(ev);
                                 }
                                 Ln("return track;");
@@ -128,7 +136,8 @@ namespace MidiSharp.CodeGeneration
                     Case<ControllerVoiceMidiEvent>(ev, e => Commas(e.DeltaTime, e.Channel, "Controller." + (Controller)e.Number, e.Value)) ??
                     Case<PitchWheelVoiceMidiEvent>(ev, e => Commas(e.DeltaTime, e.Channel, "PitchWheelStep." + (PitchWheelStep)e.Position)) ??
                     null;
-                if (eventParams == null) {
+                if (eventParams == null)
+                {
                     throw new ArgumentException("Unknown MidiEvent");
                 }
                 Ln(EventsListName, ".Add(new ", eventName, "(", eventParams, "));");
@@ -138,10 +147,12 @@ namespace MidiSharp.CodeGeneration
             /// <param name="values">The values to write.</param>
             private void Ln(params object[] values)
             {
-                if (m_indentationLevel > 0) {
+                if (m_indentationLevel > 0)
+                {
                     m_writer.Write(string.Concat(Enumerable.Repeat("    ", m_indentationLevel)));
                 }
-                foreach (object o in values) {
+                foreach (object o in values)
+                {
                     m_writer.Write(string.Format(CultureInfo.InvariantCulture, "{0}", o));
                 }
                 m_writer.WriteLine();
@@ -181,8 +192,7 @@ namespace MidiSharp.CodeGeneration
             /// <returns>The result of running the function over the event if the event is of the right type; otherwise, null.</returns>
             private static string Case<T>(MidiEvent ev, Func<T, string> func) where T : MidiEvent
             {
-                T castEvent = ev as T;
-                return castEvent != null ? func(castEvent) : null;
+                return ev is T castEvent ? func(castEvent) : null;
             }
 
             /// <summary>Create a string of C# code for creating a byte array containing the specified data.</summary>
@@ -192,7 +202,8 @@ namespace MidiSharp.CodeGeneration
             {
                 var sb = new StringBuilder();
                 sb.AppendFormat(CultureInfo.InvariantCulture, "new byte[{0}]{{", data.Length);
-                for (int i = 0; i < data.Length; i++) {
+                for (int i = 0; i < data.Length; i++)
+                {
                     sb.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}", i > 0 ? "," : "", data[i]);
                 }
                 sb.Append("}");
@@ -211,23 +222,29 @@ namespace MidiSharp.CodeGeneration
             private static string TextString(string text)
             {
                 bool acceptable = true;
-                foreach (char c in text) {
-                    if (!IsValidInTextString(c)) {
+                foreach (char c in text)
+                {
+                    if (!IsValidInTextString(c))
+                    {
                         acceptable = false;
                         break;
                     }
                 }
-                if (acceptable) {
+                if (acceptable)
+                {
                     return "\"" + text + "\"";
                 }
 
                 StringBuilder sb = t_cachedBuilder ?? (t_cachedBuilder = new StringBuilder(text.Length * 2 + 2));
                 sb.Append('\"');
-                foreach (char c in text) {
-                    if (IsValidInTextString(c)) {
+                foreach (char c in text)
+                {
+                    if (IsValidInTextString(c))
+                    {
                         sb.Append(c);
                     }
-                    else {
+                    else
+                    {
                         sb.AppendFormat(CultureInfo.InvariantCulture, "\\u{0:X4}", (int)c);
                     }
                 }
@@ -259,7 +276,7 @@ namespace MidiSharp.CodeGeneration
             private static string Commas(params object[] values)
             {
                 Validate.NonNull("values", values);
-                return 
+                return
                     values.Length == 0 ? string.Empty :
                     values.Length == 1 ? values[0] as string ?? string.Format(CultureInfo.InvariantCulture, "{0}", values[0]) :
                     string.Join(", ", values.Select(o => string.Format(CultureInfo.InvariantCulture, "{0}", o)));

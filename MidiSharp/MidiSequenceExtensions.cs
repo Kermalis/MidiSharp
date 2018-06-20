@@ -41,8 +41,7 @@ namespace MidiSharp
                     // If the event is not a voice MIDI event but the channel is the
                     // drum channel and the user has chosen not to include drums in the
                     // transposition (which makes sense), skip this event.
-                    NoteVoiceMidiEvent nvme = ev as NoteVoiceMidiEvent;
-                    if (nvme == null ||
+                    if (!(ev is NoteVoiceMidiEvent nvme) ||
                         (!includeDrums && nvme.Channel == (byte)SpecialChannel.Percussion))
                         continue;
 
@@ -84,7 +83,7 @@ namespace MidiSharp
 
                 // If the new track lacks an end of track, add one
                 if (!newTrack.HasEndOfTrack) {
-                    newTrack.Events.Add(new EndOfTrackMetaMidiEvent(0));
+                    newTrack.Events.Add(new EndOfTrackMetaMidiEvent(newTrack, 0));
                 }
             }
 
@@ -149,8 +148,8 @@ namespace MidiSharp
                     foreach (MidiEvent midiEvent in track.Events) {
                         // If this event has a channel, and if we're storing tracks as channels, copy to it
                         if ((options & FormatConversionOption.CopyTrackToChannel) > 0 && trackNumber >= 0 && trackNumber <= 0xF) {
-                            var vme = midiEvent as VoiceMidiEvent;
-                            if (vme != null) {
+                            if (midiEvent is VoiceMidiEvent vme)
+                            {
                                 vme.Channel = (byte)trackNumber;
                             }
                         }
@@ -167,7 +166,7 @@ namespace MidiSharp
                 // and top things off with an end-of-track marker.
                 newTrack.Events.Sort((x, y) => x.DeltaTime.CompareTo(y.DeltaTime));
                 newTrack.Events.ConvertTotalsToDeltas();
-                newTrack.Events.Add(new EndOfTrackMetaMidiEvent(0));
+                newTrack.Events.Add(new EndOfTrackMetaMidiEvent(newTrack, 0));
 
                 // We now have all of the combined events in newTrack.  Clear out the sequence, replacing all the tracks
                 // with this new one.

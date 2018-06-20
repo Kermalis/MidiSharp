@@ -19,20 +19,22 @@ namespace MidiSharp.Events.Voice
         private byte m_number;
 
         /// <summary>Initialize the ProgramChange MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="number">The instrument to which to change.</param>
-        public ProgramChangeVoiceMidiEvent(long deltaTime, byte channel, GeneralMidiInstrument number) :
-            this(deltaTime, channel, (byte)number)
+        public ProgramChangeVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, GeneralMidiInstrument number) :
+            this(owner, deltaTime, channel, (byte)number)
         {
         }
 
         /// <summary>Initialize the ProgramChange MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The delta-time since the previous message.</param>
         /// <param name="channel">The channel to which to write the message (0 through 15).</param>
         /// <param name="number">The number of the program to which to change.</param>
-        public ProgramChangeVoiceMidiEvent(long deltaTime, byte channel, byte number) :
-            base(deltaTime, CategoryId, channel)
+        public ProgramChangeVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, byte number) :
+            base(owner, deltaTime, CategoryId, channel)
         {
             Validate.SetIfInRange("number", ref m_number, number, 0, 127);
         }
@@ -70,7 +72,7 @@ namespace MidiSharp.Events.Voice
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new ProgramChangeVoiceMidiEvent(DeltaTime, Channel, Number);
+            return new ProgramChangeVoiceMidiEvent(Owner, DeltaTime, Channel, Number);
         }
     }
 }

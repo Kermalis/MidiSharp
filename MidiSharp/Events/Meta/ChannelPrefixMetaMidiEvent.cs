@@ -18,10 +18,11 @@ namespace MidiSharp.Events.Meta
         private byte m_prefix;
 
         /// <summary>Intializes the channel prefix event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="prefix">The prefix for the event.</param>
-        public ChannelPrefixMetaMidiEvent(long deltaTime, byte prefix)
-            : base(deltaTime, MetaId)
+        public ChannelPrefixMetaMidiEvent(MidiTrack owner, long deltaTime, byte prefix)
+            : base(owner, deltaTime, MetaId)
         {
             Prefix = prefix;
         }
@@ -53,7 +54,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new ChannelPrefixMetaMidiEvent(DeltaTime, Prefix);
+            return new ChannelPrefixMetaMidiEvent(Owner, DeltaTime, Prefix);
         }
     }
 }

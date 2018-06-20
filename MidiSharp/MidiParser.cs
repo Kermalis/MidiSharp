@@ -31,9 +31,11 @@ namespace MidiSharp
             // Create the new track
             MidiTrack track = new MidiTrack();
 
-            try {
+            try
+            {
                 // Process all bytes, turning them into events
-                while (pos < data.Length) {
+                while (pos < data.Length)
+                {
                     // Read in the delta time
                     long deltaTime = ReadVariableLength(data, ref pos);
 
@@ -41,7 +43,8 @@ namespace MidiSharp
                     byte nextValue = data[pos];
 
                     // Are we continuing a sys ex?  If so, the next value better be 0x7F
-                    if (sysExContinue && (nextValue != 0x7F)) {
+                    if (sysExContinue && (nextValue != 0x7F))
+                    {
                         var mpe = new MidiParserException("Expected to find a system exclusive continue byte.", pos);
                         mpe.Data["nextValue"] = nextValue;
                         throw mpe;
@@ -49,16 +52,19 @@ namespace MidiSharp
 
                     // Are we in running status?  Determine whether we're running and
                     // what the current status byte is.
-                    if ((nextValue & 0x80) == 0) {
+                    if ((nextValue & 0x80) == 0)
+                    {
                         // We're now in running status... if the last status was 0, uh oh!
-                        if (status == 0) {
+                        if (status == 0)
+                        {
                             throw new MidiParserException("Status byte required for running status.", pos);
                         }
 
                         // Keep the last iteration's status byte, and now we're in running mode
                         running = true;
                     }
-                    else {
+                    else
+                    {
                         // Not running, so store the current status byte and mark running as false
                         status = nextValue;
                         running = false;
@@ -70,31 +76,36 @@ namespace MidiSharp
                     MidiEvent tempEvent = null;
 
                     // Handle voice events
-                    if (messageType >= 0x8 && messageType <= 0xE) {
+                    if (messageType >= 0x8 && messageType <= 0xE)
+                    {
                         if (!running) pos++; // if we're running, we don't advance; if we're not running, we do
                         byte channel = (byte)(status & 0xF); // grab the channel from the status byte
-                        tempEvent = ParseVoiceEvent(deltaTime, messageType, channel, data, ref pos);
+                        tempEvent = ParseVoiceEvent(track, deltaTime, messageType, channel, data, ref pos);
                     }
                     // Handle meta events
-                    else if (status == 0xFF) {
+                    else if (status == 0xFF)
+                    {
                         pos++;
                         byte eventType = data[pos];
                         pos++;
-                        tempEvent = ParseMetaEvent(deltaTime, eventType, data, ref pos);
+                        tempEvent = ParseMetaEvent(track, deltaTime, eventType, data, ref pos);
                     }
                     // Handle system exclusive events
-                    else if (status == 0xF0) {
+                    else if (status == 0xF0)
+                    {
                         pos++;
                         long length = ReadVariableLength(data, ref pos); // figure out how much data to read
 
                         // If this is single-segment message, process the whole thing
-                        if (data[pos + length - 1] == 0xF7) {
+                        if (data[pos + length - 1] == 0xF7)
+                        {
                             sysExData = new byte[length - 1];
                             Array.Copy(data, (int)pos, sysExData, 0, (int)length - 1);
-                            tempEvent = new SystemExclusiveMidiEvent(deltaTime, sysExData);
+                            tempEvent = new SystemExclusiveMidiEvent(track, deltaTime, sysExData);
                         }
                         // It's multi-segment, so add the new data to the previously aquired data
-                        else {
+                        else
+                        {
                             // Add to previously aquired sys ex data
                             int oldLength = (sysExData == null ? 0 : sysExData.Length);
                             byte[] newSysExData = new byte[oldLength + length];
@@ -106,7 +117,8 @@ namespace MidiSharp
                         pos += length;
                     }
                     // Handle system exclusive continuations
-                    else if (status == 0xF7) {
+                    else if (status == 0xF7)
+                    {
                         if (!sysExContinue) sysExData = null;
 
                         // Figure out how much data there is
@@ -121,14 +133,16 @@ namespace MidiSharp
                         sysExData = newSysExData;
 
                         // Make it a system message if necessary (i.e. if we find an end marker)
-                        if (data[pos + length - 1] == 0xF7) {
-                            tempEvent = new SystemExclusiveMidiEvent(deltaTime, sysExData);
+                        if (data[pos + length - 1] == 0xF7)
+                        {
+                            tempEvent = new SystemExclusiveMidiEvent(track, deltaTime, sysExData);
                             sysExData = null;
                             sysExContinue = false;
                         }
                     }
                     // Nothing we know about
-                    else {
+                    else
+                    {
                         var e = new MidiParserException("Invalid status byte found.", pos);
                         e.Data["status"] = status;
                         throw e;
@@ -148,87 +162,90 @@ namespace MidiSharp
         }
 
         /// <summary>Parse a meta MIDI event from the data stream.</summary>
+        /// <param name="track">The track that owns this event.</param>
         /// <param name="deltaTime">The previously parsed delta-time for this event.</param>
         /// <param name="eventType">The previously parsed type of message we're expecting to find.</param>
         /// <param name="data">The data stream from which to read the event information.</param>
         /// <param name="pos">The position of the start of the event information.</param>
         /// <returns>The parsed meta MIDI event.</returns>
-        private static MidiEvent ParseMetaEvent(long deltaTime, byte eventType, byte[] data, ref long pos)
+        private static MidiEvent ParseMetaEvent(MidiTrack track, long deltaTime, byte eventType, byte[] data, ref long pos)
         {
-            try {
+            try
+            {
                 MidiEvent tempEvent = null;
 
                 // Create the correct meta event based on its meta event id/type
-                switch (eventType) {
+                switch (eventType)
+                {
                     // Sequence number
                     case SequenceNumberMetaMidiEvent.MetaId:
                         pos++; // skip past the 0x02
                         int number = ((data[pos] << 8) | data[pos + 1]);
-                        tempEvent = new SequenceNumberMetaMidiEvent(deltaTime, number);
+                        tempEvent = new SequenceNumberMetaMidiEvent(track, deltaTime, number);
                         pos += 2; // skip read values
                         break;
 
                     // Text events (copyright, lyrics, etc)
-                    case TextMetaMidiEvent.MetaId: 
-                        tempEvent = new TextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case TextMetaMidiEvent.MetaId:
+                        tempEvent = new TextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case CopyrightTextMetaMidiEvent.MetaId: 
-                        tempEvent = new CopyrightTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case CopyrightTextMetaMidiEvent.MetaId:
+                        tempEvent = new CopyrightTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case SequenceTrackNameTextMetaMidiEvent.MetaId: 
-                        tempEvent = new SequenceTrackNameTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case SequenceTrackNameTextMetaMidiEvent.MetaId:
+                        tempEvent = new SequenceTrackNameTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case InstrumentTextMetaMidiEvent.MetaId: 
-                        tempEvent = new InstrumentTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case InstrumentTextMetaMidiEvent.MetaId:
+                        tempEvent = new InstrumentTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case LyricTextMetaMidiEvent.MetaId: 
-                        tempEvent = new LyricTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case LyricTextMetaMidiEvent.MetaId:
+                        tempEvent = new LyricTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case MarkerTextMetaMidiEvent.MetaId: 
-                        tempEvent = new MarkerTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case MarkerTextMetaMidiEvent.MetaId:
+                        tempEvent = new MarkerTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case CuePointTextMetaMidiEvent.MetaId: 
-                        tempEvent = new CuePointTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case CuePointTextMetaMidiEvent.MetaId:
+                        tempEvent = new CuePointTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case ProgramNameTextMetaMidiEvent.MetaId: 
-                        tempEvent = new ProgramNameTextMetaMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case ProgramNameTextMetaMidiEvent.MetaId:
+                        tempEvent = new ProgramNameTextMetaMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
-                    case DeviceNameTextMidiEvent.MetaId: 
-                        tempEvent = new DeviceNameTextMidiEvent(deltaTime, ReadASCIIText(data, ref pos)); 
+                    case DeviceNameTextMidiEvent.MetaId:
+                        tempEvent = new DeviceNameTextMidiEvent(track, deltaTime, ReadASCIIText(data, ref pos));
                         break;
 
                     // Channel prefix
                     case ChannelPrefixMetaMidiEvent.MetaId:
                         pos++; // skip 0x1
-                        tempEvent = new ChannelPrefixMetaMidiEvent(deltaTime, data[pos]);
+                        tempEvent = new ChannelPrefixMetaMidiEvent(track, deltaTime, data[pos]);
                         pos++; // skip read value
                         break;
 
                     // Port number
                     case MidiPortMetaMidiEvent.MetaId:
                         pos++; // skip 0x1
-                        tempEvent = new MidiPortMetaMidiEvent(deltaTime, data[pos]);
+                        tempEvent = new MidiPortMetaMidiEvent(track, deltaTime, data[pos]);
                         pos++; // skip read value
                         break;
 
                     // End of track
                     case EndOfTrackMetaMidiEvent.MetaId:
                         pos++; // skip 0x0
-                        tempEvent = new EndOfTrackMetaMidiEvent(deltaTime);
+                        tempEvent = new EndOfTrackMetaMidiEvent(track, deltaTime);
                         break;
 
                     // Tempo
                     case TempoMetaMidiEvent.MetaId:
                         pos++; // skip 0x3
                         int tempo = ((data[pos] << 16) | data[pos + 1] << 8 | data[pos + 2]);
-                        tempEvent = new TempoMetaMidiEvent(deltaTime, tempo);
+                        tempEvent = new TempoMetaMidiEvent(track, deltaTime, tempo);
                         pos += 3;
                         break;
 
                     // SMPTE offset
                     case SMPTEOffsetMetaMidiEvent.MetaId:
                         pos++; // skip 0x5
-                        tempEvent = new SMPTEOffsetMetaMidiEvent(deltaTime,
+                        tempEvent = new SMPTEOffsetMetaMidiEvent(track, deltaTime,
                             data[pos], data[pos + 1], data[pos + 2], data[pos + 3], data[pos + 4]);
                         pos += 5;
                         break;
@@ -236,7 +253,7 @@ namespace MidiSharp
                     // Time signature
                     case TimeSignatureMetaMidiEvent.MetaId:
                         pos++; // skip past 0x4
-                        tempEvent = new TimeSignatureMetaMidiEvent(deltaTime,
+                        tempEvent = new TimeSignatureMetaMidiEvent(track, deltaTime,
                             data[pos], data[pos + 1], data[pos + 2], data[pos + 3]);
                         pos += 4;
                         break;
@@ -244,7 +261,7 @@ namespace MidiSharp
                     // Key signature
                     case KeySignatureMetaMidiEvent.MetaId:
                         pos++; // skip past 0x2
-                        tempEvent = new KeySignatureMetaMidiEvent(deltaTime, (Key)data[pos], (Tonality)data[pos + 1]);
+                        tempEvent = new KeySignatureMetaMidiEvent(track, deltaTime, (Key)data[pos], (Tonality)data[pos + 1]);
                         pos += 2;
                         break;
 
@@ -254,7 +271,7 @@ namespace MidiSharp
                         long length = ReadVariableLength(data, ref pos);
                         byte[] propData = new byte[length];
                         Array.Copy(data, (int)pos, propData, 0, (int)length);
-                        tempEvent = new ProprietaryMetaMidiEvent(deltaTime, propData);
+                        tempEvent = new ProprietaryMetaMidiEvent(track, deltaTime, propData);
                         pos += length;
                         break;
 
@@ -264,7 +281,7 @@ namespace MidiSharp
                         length = ReadVariableLength(data, ref pos);
                         byte[] unknownData = new byte[length];
                         Array.Copy(data, (int)pos, unknownData, 0, (int)length);
-                        tempEvent = new UnknownMetaMidiEvent(deltaTime, eventType, unknownData);
+                        tempEvent = new UnknownMetaMidiEvent(track, deltaTime, eventType, unknownData);
                         pos += length;
                         break;
                 }
@@ -275,52 +292,58 @@ namespace MidiSharp
         }
 
         /// <summary>Parse a voice event from the data stream.</summary>
+        /// <param name="track">The track that owns this event.</param>
         /// <param name="deltaTime">The previously parsed delta-time for this event.</param>
         /// <param name="messageType">The previously parsed type of message we're expecting to find.</param>
         /// <param name="channel">The previously parsed channel for this message.</param>
         /// <param name="data">The data stream from which to read the event information.</param>
         /// <param name="pos">The position of the start of the event information.</param>
         /// <returns>The parsed voice MIDI event.</returns>
-        private static MidiEvent ParseVoiceEvent(long deltaTime, byte messageType, byte channel, byte[] data, ref long pos)
+        private static MidiEvent ParseVoiceEvent(MidiTrack track, long deltaTime, byte messageType, byte channel, byte[] data, ref long pos)
         {
-            try {
+            try
+            {
                 MidiEvent tempEvent = null;
 
                 // Create the correct voice event based on its message id/type
-                switch (messageType) {
+                switch (messageType)
+                {
                     // NOTE OFF
                     case OffNoteVoiceMidiEvent.CategoryId:
-                        tempEvent = new OffNoteVoiceMidiEvent(deltaTime, channel, data[pos], data[pos + 1]);
+                        tempEvent = new OffNoteVoiceMidiEvent(track, deltaTime, channel, data[pos], data[pos + 1]);
+                        track.Channel = channel;
                         pos += 2;
                         break;
 
                     // NOTE ON
                     case OnNoteVoiceMidiEvent.CategoryId:
-                        tempEvent = new OnNoteVoiceMidiEvent(deltaTime, channel, data[pos], data[pos + 1]);
+                        tempEvent = new OnNoteVoiceMidiEvent(track, deltaTime, channel, data[pos], data[pos + 1]);
+                        track.Channel = channel;
                         pos += 2;
                         break;
 
                     // AFTERTOUCH
                     case AftertouchNoteVoiceMidiEvent.CategoryId:
-                        tempEvent = new AftertouchNoteVoiceMidiEvent(deltaTime, channel, data[pos], data[pos + 1]);
+                        tempEvent = new AftertouchNoteVoiceMidiEvent(track, deltaTime, channel, data[pos], data[pos + 1]);
+                        track.Channel = channel;
                         pos += 2;
                         break;
 
                     // CONTROLLER
                     case ControllerVoiceMidiEvent.CategoryId:
-                        tempEvent = new ControllerVoiceMidiEvent(deltaTime, channel, data[pos], data[pos + 1]);
+                        tempEvent = new ControllerVoiceMidiEvent(track, deltaTime, channel, data[pos], data[pos + 1]);
                         pos += 2;
                         break;
 
                     // PROGRAM CHANGE
                     case ProgramChangeVoiceMidiEvent.CategoryId:
-                        tempEvent = new ProgramChangeVoiceMidiEvent(deltaTime, channel, data[pos]);
+                        tempEvent = new ProgramChangeVoiceMidiEvent(track, deltaTime, channel, data[pos]);
                         pos += 1;
                         break;
 
                     // CHANNEL PRESSURE
                     case ChannelPressureVoiceMidiEvent.CategoryId:
-                        tempEvent = new ChannelPressureVoiceMidiEvent(deltaTime, channel, data[pos]);
+                        tempEvent = new ChannelPressureVoiceMidiEvent(track, deltaTime, channel, data[pos]);
                         pos += 1;
                         break;
 
@@ -329,7 +352,7 @@ namespace MidiSharp
                         int position = ((data[pos] << 8) | data[pos + 1]);
                         byte upper, lower;
                         MidiEvent.Split14BitsToBytes(position, out upper, out lower);
-                        tempEvent = new PitchWheelVoiceMidiEvent(deltaTime, channel, upper, lower);
+                        tempEvent = new PitchWheelVoiceMidiEvent(track, deltaTime, channel, upper, lower);
                         pos += 2;
                         break;
 
@@ -369,10 +392,12 @@ namespace MidiSharp
             long length = data[pos];
 
             // If the special "there's more data" marker isn't set, we're done
-            if ((data[pos] & 0x80) != 0) {
+            if ((data[pos] & 0x80) != 0)
+            {
                 // Remove the special marker
                 length &= 0x7F;
-                do {
+                do
+                {
                     // Continually get all bytes, removing the marker, until no marker is found
                     pos++;
                     length = (length << 7) + (data[pos] & 0x7F);

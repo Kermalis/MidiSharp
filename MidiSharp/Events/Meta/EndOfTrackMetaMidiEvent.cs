@@ -15,8 +15,9 @@ namespace MidiSharp.Events.Meta
         internal const byte MetaId = 0x2F;
 
         /// <summary>Intializes the end of track meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
-        public EndOfTrackMetaMidiEvent(long deltaTime) : base(deltaTime, MetaId) { }
+        public EndOfTrackMetaMidiEvent(MidiTrack owner, long deltaTime) : base(owner, deltaTime, MetaId) { }
 
         /// <summary>Write the event to the output stream.</summary>
         /// <param name="outputStream">The stream to which the event should be written.</param>
@@ -30,7 +31,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new EndOfTrackMetaMidiEvent(DeltaTime);
+            return new EndOfTrackMetaMidiEvent(Owner, DeltaTime);
         }
     }
 }

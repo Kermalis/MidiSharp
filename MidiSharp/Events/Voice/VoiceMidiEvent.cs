@@ -18,11 +18,12 @@ namespace MidiSharp.Events.Voice
         private byte m_channel;
 
         /// <summary>Intializes the voice MIDI event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="category">The category identifier (0x0 through 0xF) for this voice event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
-        internal VoiceMidiEvent(long deltaTime, byte category, byte channel)
-            : base(deltaTime)
+        internal VoiceMidiEvent(MidiTrack owner, long deltaTime, byte category, byte channel)
+            : base(owner, deltaTime)
         {
             Validate.SetIfInRange("category", ref m_category, category, 0x0, 0xF);
             Channel = channel;

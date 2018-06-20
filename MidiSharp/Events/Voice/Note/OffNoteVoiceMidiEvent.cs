@@ -18,32 +18,35 @@ namespace MidiSharp.Events.Voice.Note
         private byte m_velocity;
 
         /// <summary>Initialize the NoteOff MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The name of the MIDI note to stop sounding ("C0" to "G10").</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
-        public OffNoteVoiceMidiEvent(long deltaTime, byte channel, string note, byte velocity) :
-            this(deltaTime, channel, GetNoteValue(note), velocity)
+        public OffNoteVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, string note, byte velocity) :
+            this(owner, deltaTime, channel, GetNoteValue(note), velocity)
         {
         }
 
         /// <summary>Initialize the NoteOff MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="percussion">The percussion instrument to sound.</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
         /// <remarks>Channel 10 (internally 0x9) is assumed.</remarks>
-        public OffNoteVoiceMidiEvent(long deltaTime, GeneralMidiPercussion percussion, byte velocity) :
-            this(deltaTime, (byte)SpecialChannel.Percussion, GetNoteValue(percussion), velocity)
+        public OffNoteVoiceMidiEvent(MidiTrack owner, long deltaTime, GeneralMidiPercussion percussion, byte velocity) :
+            this(owner, deltaTime, (byte)SpecialChannel.Percussion, GetNoteValue(percussion), velocity)
         {
         }
 
         /// <summary>Initialize the NoteOff MIDI event message.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="channel">The channel (0x0 through 0xF) for this voice event.</param>
         /// <param name="note">The MIDI note to stop sounding (0x0 to 0x7F).</param>
         /// <param name="velocity">The velocity of the note (0x0 to 0x7F).</param>
-        public OffNoteVoiceMidiEvent(long deltaTime, byte channel, byte note, byte velocity) :
-            base(deltaTime, CategoryId, channel, note)
+        public OffNoteVoiceMidiEvent(MidiTrack owner, long deltaTime, byte channel, byte note, byte velocity) :
+            base(owner, deltaTime, CategoryId, channel, note)
         {
             Velocity = velocity;
         }
@@ -78,7 +81,7 @@ namespace MidiSharp.Events.Voice.Note
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new OffNoteVoiceMidiEvent(DeltaTime, Channel, Note, Velocity);
+            return new OffNoteVoiceMidiEvent(Owner, DeltaTime, Channel, Note, Velocity);
         }
     }
 }

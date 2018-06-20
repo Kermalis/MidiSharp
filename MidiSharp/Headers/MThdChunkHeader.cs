@@ -66,12 +66,15 @@ namespace MidiSharp.Headers
         {
             Validate.NonNull("header.ID", header.ID);
 
-            for (int i = 0; i < 4; i++) {
-                if (header.ID[i] != s_mThdID[i]) {
+            for (int i = 0; i < 4; i++)
+            {
+                if (header.ID[i] != s_mThdID[i])
+                {
                     throw new InvalidOperationException("Invalid MThd header.");
                 }
             }
-            if (header.Length != MThdHeaderLength) {
+            if (header.Length != MThdHeaderLength)
+            {
                 throw new InvalidOperationException("The length of the MThd header is incorrect.");
             }
         }

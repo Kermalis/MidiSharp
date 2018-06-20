@@ -18,10 +18,11 @@ namespace MidiSharp.Events.Meta
         private int m_tempo;
 
         /// <summary>Intializes the tempo meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="value">The tempo for the event.</param>
-        public TempoMetaMidiEvent(long deltaTime, int value)
-            : base(deltaTime, MetaId)
+        public TempoMetaMidiEvent(MidiTrack owner, long deltaTime, int value)
+            : base(owner, deltaTime, MetaId)
         {
             Value = value;
         }
@@ -55,7 +56,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new TempoMetaMidiEvent(DeltaTime, Value);
+            return new TempoMetaMidiEvent(Owner, DeltaTime, Value);
         }
     }
 }

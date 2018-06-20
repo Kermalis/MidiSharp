@@ -13,10 +13,11 @@ namespace MidiSharp.Events
     public sealed class SystemExclusiveMidiEvent : MidiEvent
     {
         /// <summary>Intializes the meta MIDI event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="data">The data for the event.</param>
-        public SystemExclusiveMidiEvent(long deltaTime, byte[] data)
-            : base(deltaTime)
+        public SystemExclusiveMidiEvent(MidiTrack owner, long deltaTime, byte[] data)
+            : base(owner, deltaTime)
         {
             Data = data;
         }
@@ -49,7 +50,7 @@ namespace MidiSharp.Events
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new SystemExclusiveMidiEvent(DeltaTime, Data != null ? (byte[])Data.Clone() : null);
+            return new SystemExclusiveMidiEvent(Owner, DeltaTime, Data != null ? (byte[])Data.Clone() : null);
         }
     }
 }

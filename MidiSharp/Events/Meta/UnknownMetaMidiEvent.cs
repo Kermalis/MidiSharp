@@ -13,11 +13,12 @@ namespace MidiSharp.Events.Meta
     public sealed class UnknownMetaMidiEvent : MetaMidiEvent
     {
         /// <summary>Intializes the meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="metaEventID">The event ID for this meta event.</param>
         /// <param name="data">The data associated with the event.</param>
-        public UnknownMetaMidiEvent(long deltaTime, byte metaEventID, byte[] data) :
-            base(deltaTime, metaEventID)
+        public UnknownMetaMidiEvent(MidiTrack owner, long deltaTime, byte metaEventID, byte[] data) :
+            base(owner, deltaTime, metaEventID)
         {
             Data = data;
         }
@@ -48,7 +49,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new UnknownMetaMidiEvent(DeltaTime, MetaEventID, DeepClone(Data));
+            return new UnknownMetaMidiEvent(Owner, DeltaTime, MetaEventID, DeepClone(Data));
         }
     }
 }

@@ -19,7 +19,8 @@ namespace MidiSharp.Tests
         public static string SaveToTempFile(MidiSequence sequence)
         {
             string tmpPath = Path.GetTempFileName();
-            using (var s = File.OpenWrite(tmpPath)) {
+            using (var s = File.OpenWrite(tmpPath))
+            {
                 sequence.Save(s);
             }
             return tmpPath;
@@ -31,8 +32,10 @@ namespace MidiSharp.Tests
         public static void AssertThrows<TException>(Action action) where TException : Exception
         {
             try { action(); }
-            catch (Exception exc) {
-                if (typeof(TException).IsInstanceOfType(exc)) {
+            catch (Exception exc)
+            {
+                if (typeof(TException).IsInstanceOfType(exc))
+                {
                     return;
                 }
                 Assert.Fail("Incorrect exception type thrown.");
@@ -50,7 +53,8 @@ namespace MidiSharp.Tests
             Assert.AreEqual(left.DivisionType, right.DivisionType);
             Assert.AreEqual(left.Tracks.Count, right.Tracks.Count);
 
-            for (int i = 0; i < left.Tracks.Count; i++) {
+            for (int i = 0; i < left.Tracks.Count; i++)
+            {
                 AssertAreEqual(left.Tracks[i], right.Tracks[i]);
             }
         }
@@ -61,7 +65,8 @@ namespace MidiSharp.Tests
         public static void AssertAreEqual(MidiTrack left, MidiTrack right)
         {
             Assert.AreEqual(left.Events.Count, right.Events.Count);
-            for (int j = 0; j < left.Events.Count; j++) {
+            for (int j = 0; j < left.Events.Count; j++)
+            {
                 Assert.AreEqual(left.Events[j].ToString(), right.Events[j].ToString());
             }
         }

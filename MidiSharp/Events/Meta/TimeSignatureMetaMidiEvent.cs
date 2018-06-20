@@ -16,14 +16,15 @@ namespace MidiSharp.Events.Meta
         internal const byte MetaId = 0x58;
 
         /// <summary>Intializes the time signature meta event.</summary>
+        /// <param name="owner">The track that owns this event.</param>
         /// <param name="deltaTime">The amount of time before this event.</param>
         /// <param name="numerator">Numerator of the time signature.</param>
         /// <param name="denominator">Negative power of two, denominator of time signature.</param>
         /// <param name="midiClocksPerClick">The number of MIDI clocks per metronome click.</param>
         /// <param name="numberOfNotated32nds">The number of notated 32nd notes per MIDI quarter note.</param>
-        public TimeSignatureMetaMidiEvent(long deltaTime,
+        public TimeSignatureMetaMidiEvent(MidiTrack owner, long deltaTime,
             byte numerator, byte denominator, byte midiClocksPerClick, byte numberOfNotated32nds) :
-            base(deltaTime, MetaId)
+            base(owner, deltaTime, MetaId)
         {
             Numerator = numerator;
             Denominator = denominator;
@@ -68,7 +69,7 @@ namespace MidiSharp.Events.Meta
         /// <returns>A deep clone of the MIDI event.</returns>
         public override MidiEvent DeepClone()
         {
-            return new TimeSignatureMetaMidiEvent(DeltaTime, Numerator, Denominator, MidiClocksPerClick, NumberOfNotated32nds);
+            return new TimeSignatureMetaMidiEvent(Owner, DeltaTime, Numerator, Denominator, MidiClocksPerClick, NumberOfNotated32nds);
         }
     }
 }
